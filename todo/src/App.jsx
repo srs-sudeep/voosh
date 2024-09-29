@@ -3,11 +3,7 @@ import Layout from './layouts/Layout';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Tasks from './pages/Tasks';
-
-// Helper function to check if user is logged in
-const isAuthenticated = () => {
-  return !!localStorage.getItem('token');  // Token existence check
-};
+import ProtectedRoute from './contexts/ProtectedRoutes';
 
 function App() {
   return (
@@ -19,7 +15,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route
             path="tasks"
-            element={isAuthenticated() ? <Tasks /> : <Navigate to="/login" />}
+            element={<ProtectedRoute><Tasks/> </ProtectedRoute>}
           />
         </Route>
       </Routes>

@@ -10,7 +10,17 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [gid, setGid] = useState('');
   const navigate = useNavigate();
+  const isAuthenticated = () => {
+    return !!localStorage.getItem('token');  // Token existence check
+  };
 
+  useEffect(() => {
+    console.log(isAuthenticated())
+    if(isAuthenticated() === true){
+
+      navigate("/tasks");
+    }
+  }, [])
   useEffect(() => {
     const loadGoogleScript = () => {
       const script = document.createElement('script');
@@ -30,9 +40,8 @@ const Login = () => {
         password,
       });
       const token = response.data.token;
-      // Store token in localStorage
       localStorage.setItem('token', token);
-      // Redirect to tasks page
+      console.log("hello");
       navigate('/tasks');
     } catch (error) {
       console.error('Error during login', error);
