@@ -28,7 +28,7 @@ const Tasks = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/tasks', {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/tasks`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -47,7 +47,7 @@ const Tasks = () => {
 
   const handleAddTask = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/tasks', newTask, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/tasks`, newTask, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTasks([...tasks, response.data]);
@@ -60,7 +60,7 @@ const Tasks = () => {
 
   const handleEditTask = async () => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/tasks/${editTask._id}`, editTask, {
+      const response = await axios.put(`${import.meta.env.VITE_API_URL}/tasks/${editTask._id}`, editTask, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTasks(tasks.map((task) => (task._id === editTask._id ? response.data : task)));
@@ -73,7 +73,7 @@ const Tasks = () => {
 
   const handleDeleteTask = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/tasks/${taskToDelete._id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/tasks/${taskToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTasks(tasks.filter((task) => task._id !== taskToDelete._id));
