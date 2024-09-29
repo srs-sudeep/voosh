@@ -274,10 +274,32 @@ const TaskCard = ({ task, setEditTask, setOpenEditModal, setOpenDeleteConfirm, s
 
   return (
     <Card ref={drag} sx={{ marginBottom: '1rem', backgroundColor: '#e3f2fd', cursor: 'move' }}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>{task.title}</Typography>
-        <Typography variant="body2">{task.description}</Typography>
-      </CardContent>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+  <div>
+    {/* Title with larger font and bold styling */}
+    <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
+      {task.title}
+    </Typography>
+
+    {/* Description with slightly less boldness and smaller font */}
+    <Typography variant="body1" sx={{ fontWeight: 'medium', marginBottom: '1rem' }}>
+      {task.description}
+    </Typography>
+  </div>
+
+  {/* Created at placed at the bottom with spacing */}
+  <Typography
+    variant="body2"
+    sx={{
+      marginTop: 'auto',
+      fontSize: '0.875rem',
+      color: 'gray',
+    }}
+  >
+    Created at: {new Date(task.createdAt).toLocaleString()}
+  </Typography>
+</CardContent>
+
       <CardActions>
         <IconButton onClick={() => { setEditTask(task); setOpenEditModal(true); }}><EditIcon /></IconButton>
         <IconButton onClick={() => { setTaskToDelete(task); setOpenDeleteConfirm(true); }}><DeleteIcon /></IconButton>
