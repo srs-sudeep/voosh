@@ -36,7 +36,7 @@ exports.login = async (req, res) => {
 exports.googleSignup = async (req, res) => {
   const { name, email, g_id } = req.body;
   try {
-    let existingUser = await User.findOne({ g_id: g_id });
+    let existingUser = await User.findOne({ googleId: g_id });
     if (existingUser) {
       return res.status(400).json({ message: "User with this email or Google ID already exists." });
     }
