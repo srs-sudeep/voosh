@@ -12,7 +12,7 @@ app.use(express.json());
 // enable cors
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://voosh-nine.vercel.app/'],
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://voosh-nine.vercel.app'],
     credentials: true,
     exposedHeaders: ['Set-Cookie'],
   }),
@@ -22,7 +22,7 @@ app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Credentials', true);
 
   if (process.env.NODE_ENV === 'production') {
-    res.header('Access-Control-Allow-Origin', 'https://voosh-nine.vercel.app/');
+    res.header('Access-Control-Allow-Origin', 'https://voosh-nine.vercel.app');
   } else {
     res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
   }
