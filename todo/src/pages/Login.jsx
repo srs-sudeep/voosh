@@ -4,20 +4,19 @@ import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-
+import { useAuth } from '../contexts/AuthContext';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [gid, setGid] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth(); // Get login function from context
   const isAuthenticated = () => {
     return !!localStorage.getItem('token');  // Token existence check
   };
 
   useEffect(() => {
-    console.log(isAuthenticated())
     if(isAuthenticated() === true){
-
       navigate("/tasks");
     }
   }, [])
@@ -41,8 +40,10 @@ const Login = () => {
       });
       const token = response.data.token;
       localStorage.setItem('token', token);
-      console.log("hello");
-      navigate('/tasks');
+      if(token){
+        login();
+        navigate('/tasks');
+      }
     } catch (error) {
       console.error('Error during login', error);
     }

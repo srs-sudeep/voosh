@@ -1,20 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppBar, Toolbar, IconButton, Typography, Box, Button, Drawer, List, ListItem, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Outlet } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext'; // Import the useAuth hook
 
 const Layout = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, logout } = useAuth(); // Use Auth context
   const navigate = useNavigate();
-  const location = useLocation(); // Hook to get the current location for active link styles
-
-  useEffect(() => {
-    // Check if the user is logged in based on the presence of a token
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token); // Set isLoggedIn to true if a token exists
-  }, []);
+  const location = useLocation();
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -24,11 +19,10 @@ const Layout = () => {
   };
 
   const handleLogout = () => {
-    // Remove token and update the login state
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
+    logout(); // Call logout from Auth context
     navigate('/login'); // Redirect to login page
   };
+
 
   const drawer = (
     <Box

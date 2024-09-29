@@ -5,14 +5,14 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
 import { Box, Button, Container, TextField, Typography, Grid, Divider } from '@mui/material';
-
+import { useAuth } from '../contexts/AuthContext';
 const Signup = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [gid, setGid] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-
+  const { login } = useAuth();
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -23,7 +23,10 @@ const Signup = () => {
       });
       const token = response.data.token;
       localStorage.setItem('token', token);
-      navigate('/tasks'); // Redirect to tasks page
+      if(token){
+        login();
+        navigate('/tasks');
+      }
     } catch (error) {
       console.error('Error during registration', error);
     }
@@ -38,7 +41,10 @@ const Signup = () => {
       });
       const token = response.data.token;
       localStorage.setItem('token', token);
-      navigate('/tasks'); // Redirect to tasks page
+      if(token){
+        login();
+        navigate('/tasks');
+      }
     } catch (error) {
       console.error('Error during Google signup', error);
     }

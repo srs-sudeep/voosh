@@ -4,10 +4,13 @@ import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Tasks from './pages/Tasks';
 import ProtectedRoute from './contexts/ProtectedRoutes';
+import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
   return (
     <Router>
+            <AuthProvider>
+
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/" element={<Layout />}>
@@ -19,6 +22,7 @@ function App() {
           />
         </Route>
       </Routes>
+      </AuthProvider>
     </Router>
   );
 }
