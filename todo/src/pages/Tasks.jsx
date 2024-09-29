@@ -4,7 +4,7 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import {
   Grid, Button, TextField, Card, CardContent, CardActions, IconButton, Typography, Select, MenuItem,
-  Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText
+  Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, Box
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -122,13 +122,13 @@ const Tasks = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem' }}>
+      <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '1rem' }}>
           <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => setOpenAddModal(true)}>
             Add Task
           </Button>
-        </div>
-        <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between' }}>
+        </Box>
+        <Box sx={{ padding: '1rem', display: 'flex', justifyContent: 'space-between' }}>
           <TextField
             label="Search"
             variant="outlined"
@@ -139,22 +139,43 @@ const Tasks = () => {
             <MenuItem value="recent">Recent</MenuItem>
             <MenuItem value="oldest">Oldest</MenuItem>
           </Select>
-        </div>
+        </Box>
 
         <Grid container spacing={3}>
           {statusColumns.map((status) => (
             <Grid item xs={4} key={status}>
-              <Typography variant="h5" align="center">{status.toUpperCase()}</Typography>
-              <TaskColumn
-                status={status}
-                tasks={filteredTasks(status)}
-                moveTask={moveTask}
-                setEditTask={setEditTask}
-                setOpenEditModal={setOpenEditModal}
-                setOpenDeleteConfirm={setOpenDeleteConfirm}
-                setTaskToDelete={setTaskToDelete}
-                handleViewDetails={handleViewDetails}
-              />
+              <Box
+                sx={{
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                  padding: '1rem',
+                }}
+              >
+                <Typography
+                  variant="h5"
+                  align="center"
+                  sx={{
+                    backgroundColor: '#1976d2',
+                    color: 'white',
+                    padding: '0.5rem 0',
+                    borderRadius: '4px',
+                    marginBottom: '1rem',
+                  }}
+                >
+                  {status.toUpperCase()}
+                </Typography>
+                <TaskColumn
+                  status={status}
+                  tasks={filteredTasks(status)}
+                  moveTask={moveTask}
+                  setEditTask={setEditTask}
+                  setOpenEditModal={setOpenEditModal}
+                  setOpenDeleteConfirm={setOpenDeleteConfirm}
+                  setTaskToDelete={setTaskToDelete}
+                  handleViewDetails={handleViewDetails}
+                />
+              </Box>
             </Grid>
           ))}
         </Grid>
@@ -214,7 +235,7 @@ const Tasks = () => {
             <Button onClick={handleDeleteTask} color="secondary">Delete</Button>
           </DialogActions>
         </Dialog>
-      </div>
+      </Box>
     </DndProvider>
   );
 };
@@ -252,24 +273,17 @@ const TaskCard = ({ task, setEditTask, setOpenEditModal, setOpenDeleteConfirm, s
   });
 
   return (
-    <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }}>
-      <Card>
-        <CardContent>
-          <Typography variant="h6">{task.title}</Typography>
-          <Typography variant="body2">{task.description}</Typography>
-          <Typography variant="caption">Created at: {new Date(task.createdAt).toLocaleString()}</Typography>
-        </CardContent>
-        <CardActions>
-          <IconButton onClick={() => { setEditTask(task); setOpenEditModal(true); }}>
-            <EditIcon />
-          </IconButton>
-          <IconButton onClick={() => { setTaskToDelete(task); setOpenDeleteConfirm(true); }}>
-            <DeleteIcon />
-          </IconButton>
-          <Button variant="contained" color="primary" onClick={() => handleViewDetails(task)}>View Details</Button>
-        </CardActions>
-      </Card>
-    </div>
+    <Card ref={drag} sx={{ marginBottom: '1rem', backgroundColor: '#e3f2fd', cursor: 'move' }}>
+      <CardContent>
+        <Typography variant="h6" gutterBottom>{task.title}</Typography>
+        <Typography variant="body2">{task.description}</Typography>
+      </CardContent>
+      <CardActions>
+        <IconButton onClick={() => { setEditTask(task); setOpenEditModal(true); }}><EditIcon /></IconButton>
+        <IconButton onClick={() => { setTaskToDelete(task); setOpenDeleteConfirm(true); }}><DeleteIcon /></IconButton>
+        <Button onClick={() => handleViewDetails(task)}>Details</Button>
+      </CardActions>
+    </Card>
   );
 };
 

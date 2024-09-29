@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { GoogleOAuthProvider } from "@react-oauth/google";
-import { GoogleLogin } from "@react-oauth/google";
+import { TextField, Button, Box, Typography, Container, Link as MuiLink } from '@mui/material';
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [gid,setGid] = useState('');
+  const [gid, setGid] = useState('');
   const navigate = useNavigate();
+
   useEffect(() => {
     const loadGoogleScript = () => {
       const script = document.createElement('script');
@@ -42,7 +43,7 @@ const Login = () => {
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/googlelogin`, {
         email,
-        g_id:gid,
+        g_id: gid,
       });
       const token = response.data.token;
       // Store token in localStorage
@@ -55,42 +56,80 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <h2>Login Page</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email: </label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </div>
-        <div>
-          <label>Password: </label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-      <div>
-        <GoogleOAuthProvider
-              clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
-              className="loginWith"
-            >
-              <GoogleLogin
-                buttonText="Continue with Google"
-                onSuccess={(credentialResponse) => {
-                  const details = jwtDecode(credentialResponse.credential);
-                  setEmail(details.email);
-                  setGid(details.sub);
-                  handleGoogle();
-                }}
-                onError={() => {
-                  console.log("Login Failed");
-                }}
-                theme="filled_black"
-                shape="pill"
-                text="continue_with"
-              />
-            </GoogleOAuthProvider>
-      </div>
-    </div>
+    <Container maxWidth="xs" sx={{ mt: 8 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          boxShadow: 3,
+          p: 3,
+          borderRadius: 2,
+          backgroundColor: 'white'
+        }}
+      >
+        <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
+          Login
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            name="email"
+            autoComplete="email"
+            autoFocus
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 2, mb: 2, backgroundColor: '#007BFF', color: 'white' }}
+          >
+            Login
+          </Button>
+        </form>
+        <Typography variant="body2" color="textSecondary" align="center">
+          Don't have an account?{' '}
+          <MuiLink component={Link} to="/signup">
+            Signup
+          </MuiLink>
+        </Typography>
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+          <GoogleLogin
+            buttonText="Login with Google"
+            onSuccess={(credentialResponse) => {
+              const details = jwtDecode(credentialResponse.credential);
+              setEmail(details.email);
+              setGid(details.sub);
+              handleGoogle();
+            }}
+            onError={() => {
+              console.log('Login Failed');
+            }}
+            theme="filled_black"
+            text="continue_with"
+            shape="pill"
+          />
+        </GoogleOAuthProvider>
+      </Box>
+    </Container>
   );
 };
 
