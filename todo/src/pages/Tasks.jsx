@@ -138,7 +138,6 @@ const Tasks = () => {
         <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => setOpenAddModal(true)}>
           Add Task
         </Button>
-        <Button variant="contained" color="secondary">Logout</Button>
       </div>
       <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between' }}>
         <TextField
