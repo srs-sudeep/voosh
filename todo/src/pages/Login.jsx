@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Box, Typography, Container, Link as MuiLink } from '@mui/material';
+import { TextField, Button, Box, Typography, Container, Link as MuiLink ,Divider} from '@mui/material';
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate, Link } from 'react-router-dom';
@@ -78,7 +78,6 @@ const Login = () => {
         g_id: gid,
       });
       const token = response.data.token;
-      // Store token in localStorage
       localStorage.setItem('token', token);
       if (token) {
         login();
@@ -140,10 +139,11 @@ const Login = () => {
             Login
           </Button>
         </form>
+        <Divider sx={{ my: 2 }}>OR</Divider>
         <Typography variant="body2" color="textSecondary" align="center">
           Don't have an account?{' '}
           <MuiLink component={Link} to="/signup">
-            Signup
+            SIGNUP
           </MuiLink>
         </Typography>
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
