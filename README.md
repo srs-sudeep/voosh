@@ -1,5 +1,5 @@
 # Voosh Todo
-
+(NOTE - Currently using render for server so it has 50 seconds or more of cooldown)
 ## Overview
 
 This project is for the Voosh Assignment. The Voosh Todo application allows users to manage hospital tasks efficiently with a user-friendly interface and robust backend functionality.
