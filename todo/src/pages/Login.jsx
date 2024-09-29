@@ -58,8 +58,10 @@ const Login = () => {
       const token = response.data.token;
       // Store token in localStorage
       localStorage.setItem('token', token);
-      // Redirect to tasks page
-      navigate('/tasks');
+      if(token){
+        login();
+        navigate('/tasks');
+      }
     } catch (error) {
       console.error('Error during login', error);
     }
