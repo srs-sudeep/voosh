@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import {
   Grid, Button, TextField, Card, CardContent, CardActions, IconButton, Typography, Select, MenuItem,
   Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText
@@ -100,171 +101,174 @@ const Tasks = () => {
     return filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
   };
 
-  const onDragEnd = async (result) => {
-    const { destination, source, draggableId } = result;
-
-    if (!destination) {
-      return;
-    }
-
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return;
-    }
-
-    const task = tasks.find((t) => t._id === draggableId);
-    const newStatus = destination.droppableId;
+  const moveTask = async (taskId, newStatus) => {
+    const taskToMove = tasks.find((t) => t._id === taskId);
+    if (taskToMove.status === newStatus) return;
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/tasks/${task._id}`,
-        { ...task, status: newStatus },
+        `${import.meta.env.VITE_API_URL}/tasks/${taskId}`,
+        { ...taskToMove, status: newStatus },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      setTasks(tasks.map((t) => (t._id === task._id ? response.data : t)));
+      setTasks(tasks.map((t) => (t._id === taskId ? response.data : t)));
     } catch (error) {
       console.error('Error updating task status:', error);
     }
   };
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem' }}>
-        <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => setOpenAddModal(true)}>
-          Add Task
-        </Button>
-      </div>
-      <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between' }}>
-        <TextField
-          label="Search"
-          variant="outlined"
-          value={search}
-          onChange={handleSearchChange}
-        />
-        <Select value={sort} onChange={(e) => setSort(e.target.value)}>
-          <MenuItem value="recent">Recent</MenuItem>
-          <MenuItem value="oldest">Oldest</MenuItem>
-        </Select>
-      </div>
+    <DndProvider backend={HTML5Backend}>
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem' }}>
+          <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => setOpenAddModal(true)}>
+            Add Task
+          </Button>
+        </div>
+        <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between' }}>
+          <TextField
+            label="Search"
+            variant="outlined"
+            value={search}
+            onChange={handleSearchChange}
+          />
+          <Select value={sort} onChange={(e) => setSort(e.target.value)}>
+            <MenuItem value="recent">Recent</MenuItem>
+            <MenuItem value="oldest">Oldest</MenuItem>
+          </Select>
+        </div>
 
-      <DragDropContext onDragEnd={onDragEnd}>
         <Grid container spacing={3}>
           {statusColumns.map((status) => (
             <Grid item xs={4} key={status}>
               <Typography variant="h5" align="center">{status.toUpperCase()}</Typography>
-              <Droppable droppableId={status}>
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef} style={{ minHeight: '100px' }}>
-                    {filteredTasks(status).map((task, index) => (
-                      <Draggable key={task._id} draggableId={task._id} index={index}>
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                          >
-                            <TaskCard
-                              task={task}
-                              setEditTask={setEditTask}
-                              setOpenEditModal={setOpenEditModal}
-                              setOpenDeleteConfirm={setOpenDeleteConfirm}
-                              setTaskToDelete={setTaskToDelete}
-                              handleViewDetails={handleViewDetails}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
+              <TaskColumn
+                status={status}
+                tasks={filteredTasks(status)}
+                moveTask={moveTask}
+                setEditTask={setEditTask}
+                setOpenEditModal={setOpenEditModal}
+                setOpenDeleteConfirm={setOpenDeleteConfirm}
+                setTaskToDelete={setTaskToDelete}
+                handleViewDetails={handleViewDetails}
+              />
             </Grid>
           ))}
         </Grid>
-      </DragDropContext>
 
-      {/* Add Task Modal */}
-      <Dialog open={openAddModal} onClose={() => setOpenAddModal(false)}>
-        <DialogTitle>Add Task</DialogTitle>
-        <DialogContent>
-          <TextField fullWidth label="Title" value={newTask.title} onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} />
-          <TextField fullWidth multiline label="Description" value={newTask.description} onChange={(e) => setNewTask({ ...newTask, description: e.target.value })} />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenAddModal(false)}>Cancel</Button>
-          <Button onClick={handleAddTask} color="primary">Add Task</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Edit Task Modal */}
-      {editTask && (
-        <Dialog open={openEditModal} onClose={() => setOpenEditModal(false)}>
-          <DialogTitle>Edit Task</DialogTitle>
+        {/* Add Task Modal */}
+        <Dialog open={openAddModal} onClose={() => setOpenAddModal(false)}>
+          <DialogTitle>Add Task</DialogTitle>
           <DialogContent>
-            <TextField fullWidth label="Title" value={editTask.title} onChange={(e) => setEditTask({ ...editTask, title: e.target.value })} />
-            <TextField fullWidth multiline label="Description" value={editTask.description} onChange={(e) => setEditTask({ ...editTask, description: e.target.value })} />
+            <TextField fullWidth label="Title" value={newTask.title} onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} />
+            <TextField fullWidth multiline label="Description" value={newTask.description} onChange={(e) => setNewTask({ ...newTask, description: e.target.value })} />
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpenEditModal(false)}>Cancel</Button>
-            <Button onClick={handleEditTask} color="primary">Save Changes</Button>
+            <Button onClick={() => setOpenAddModal(false)}>Cancel</Button>
+            <Button onClick={handleAddTask} color="primary">Add Task</Button>
           </DialogActions>
         </Dialog>
-      )}
 
-      {/* View Task Details Modal */}
-      {selectedTask && (
-        <Dialog open={openDetailsModal} onClose={() => setOpenDetailsModal(false)}>
-          <DialogTitle>Task Details</DialogTitle>
+        {/* Edit Task Modal */}
+        {editTask && (
+          <Dialog open={openEditModal} onClose={() => setOpenEditModal(false)}>
+            <DialogTitle>Edit Task</DialogTitle>
+            <DialogContent>
+              <TextField fullWidth label="Title" value={editTask.title} onChange={(e) => setEditTask({ ...editTask, title: e.target.value })} />
+              <TextField fullWidth multiline label="Description" value={editTask.description} onChange={(e) => setEditTask({ ...editTask, description: e.target.value })} />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenEditModal(false)}>Cancel</Button>
+              <Button onClick={handleEditTask} color="primary">Save Changes</Button>
+            </DialogActions>
+          </Dialog>
+        )}
+
+        {/* View Task Details Modal */}
+        {selectedTask && (
+          <Dialog open={openDetailsModal} onClose={() => setOpenDetailsModal(false)}>
+            <DialogTitle>Task Details</DialogTitle>
+            <DialogContent>
+              <Typography variant="h6">Title: {selectedTask.title}</Typography>
+              <Typography variant="body1">Description: {selectedTask.description}</Typography>
+              <Typography variant="caption">Created at: {new Date(selectedTask.createdAt).toLocaleString()}</Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenDetailsModal(false)}>Close</Button>
+            </DialogActions>
+          </Dialog>
+        )}
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={openDeleteConfirm} onClose={() => setOpenDeleteConfirm(false)}>
+          <DialogTitle>Confirm Delete</DialogTitle>
           <DialogContent>
-            <Typography variant="h6">Title: {selectedTask.title}</Typography>
-            <Typography variant="body1">Description: {selectedTask.description}</Typography>
-            <Typography variant="caption">Created at: {new Date(selectedTask.createdAt).toLocaleString()}</Typography>
+            <DialogContentText>Are you sure you want to delete this task?</DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpenDetailsModal(false)}>Close</Button>
+            <Button onClick={() => setOpenDeleteConfirm(false)}>Cancel</Button>
+            <Button onClick={handleDeleteTask} color="secondary">Delete</Button>
           </DialogActions>
         </Dialog>
-      )}
+      </div>
+    </DndProvider>
+  );
+};
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={openDeleteConfirm} onClose={() => setOpenDeleteConfirm(false)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Are you sure you want to delete this task?</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDeleteConfirm(false)}>Cancel</Button>
-          <Button onClick={handleDeleteTask} color="secondary">Delete</Button>
-        </DialogActions>
-      </Dialog>
+const TaskColumn = ({ status, tasks, moveTask, setEditTask, setOpenEditModal, setOpenDeleteConfirm, setTaskToDelete, handleViewDetails }) => {
+  const [, drop] = useDrop({
+    accept: 'TASK',
+    drop: (item) => moveTask(item.id, status),
+  });
+
+  return (
+    <div ref={drop} style={{ minHeight: '100px' }}>
+      {tasks.map((task) => (
+        <TaskCard
+          key={task._id}
+          task={task}
+          setEditTask={setEditTask}
+          setOpenEditModal={setOpenEditModal}
+          setOpenDeleteConfirm={setOpenDeleteConfirm}
+          setTaskToDelete={setTaskToDelete}
+          handleViewDetails={handleViewDetails}
+        />
+      ))}
     </div>
   );
 };
 
 const TaskCard = ({ task, setEditTask, setOpenEditModal, setOpenDeleteConfirm, setTaskToDelete, handleViewDetails }) => {
+  const [{ isDragging }, drag] = useDrag({
+    type: 'TASK',
+    item: { id: task._id },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  });
+
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h6">{task.title}</Typography>
-        <Typography variant="body2">{task.description}</Typography>
-        <Typography variant="caption">Created at: {new Date(task.createdAt).toLocaleString()}</Typography>
-      </CardContent>
-      <CardActions>
-        <IconButton onClick={() => { setEditTask(task); setOpenEditModal(true); }}>
-          <EditIcon />
-        </IconButton>
-        <IconButton onClick={() => { setTaskToDelete(task); setOpenDeleteConfirm(true); }}>
-          <DeleteIcon />
-        </IconButton>
-        <Button variant="contained" color="primary" onClick={() => handleViewDetails(task)}>View Details</Button>
-      </CardActions>
-    </Card>
+    <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }}>
+      <Card>
+        <CardContent>
+          <Typography variant="h6">{task.title}</Typography>
+          <Typography variant="body2">{task.description}</Typography>
+          <Typography variant="caption">Created at: {new Date(task.createdAt).toLocaleString()}</Typography>
+        </CardContent>
+        <CardActions>
+          <IconButton onClick={() => { setEditTask(task); setOpenEditModal(true); }}>
+            <EditIcon />
+          </IconButton>
+          <IconButton onClick={() => { setTaskToDelete(task); setOpenDeleteConfirm(true); }}>
+            <DeleteIcon />
+          </IconButton>
+          <Button variant="contained" color="primary" onClick={() => handleViewDetails(task)}>View Details</Button>
+        </CardActions>
+      </Card>
+    </div>
   );
 };
 
