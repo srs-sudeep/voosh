@@ -103,8 +103,8 @@ const Login = () => {
           backgroundColor: 'white'
         }}
       >
-        <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
-          Login
+        <Typography component="h1" variant="h5" sx={{ mb: 2, fontWeight: 'bold' }}>
+          LOGIN
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField

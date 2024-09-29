@@ -63,8 +63,19 @@ const Signup = () => {
 
   return (
     <Container maxWidth="xs" sx={{ mt: 5 }}>
-      <Typography variant="h4" align="center" gutterBottom>
-        Signup
+      <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                boxShadow: 3,
+                p: 3,
+                borderRadius: 2,
+                backgroundColor: 'white'
+              }}
+      >
+      <Typography variant="h4" align="center" gutterBottom sx={{ mb: 2, fontWeight: 'bold' }}>
+        SIGNUP
       </Typography>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -151,6 +162,7 @@ const Signup = () => {
 
       {/* Toast Container for notifications */}
       <ToastContainer />
+      </Box>
     </Container>
   );
 };
