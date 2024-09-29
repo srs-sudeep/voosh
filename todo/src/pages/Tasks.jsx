@@ -190,49 +190,87 @@ const Tasks = () => {
           ))}
         </Grid>
 
-        {/* Add Task Modal */}
-        <Dialog open={openAddModal} onClose={() => setOpenAddModal(false)}>
-          <DialogTitle>Add Task</DialogTitle>
-          <DialogContent>
-            <TextField fullWidth label="Title" value={newTask.title} onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} />
-            <TextField fullWidth multiline label="Description" value={newTask.description} onChange={(e) => setNewTask({ ...newTask, description: e.target.value })} />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenAddModal(false)}>Cancel</Button>
-            <Button onClick={handleAddTask} color="primary">Add Task</Button>
-          </DialogActions>
-        </Dialog>
+{/* Add Task Modal */}
+<Dialog open={openAddModal} onClose={() => setOpenAddModal(false)}>
+  <DialogTitle>Add Task</DialogTitle>
+  <DialogContent>
+    <TextField
+      fullWidth
+      label="Title"
+      value={newTask.title}
+      onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+      sx={{ mb: 2 }} // Add bottom margin for spacing
+    />
+    <TextField
+      fullWidth
+      multiline
+      label="Description"
+      value={newTask.description}
+      onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+      sx={{ mb: 2 }} // Add bottom margin for spacing
+      minRows={3} // Minimum number of rows for better visibility
+    />
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenAddModal(false)} color="secondary">Cancel</Button>
+    <Button onClick={handleAddTask} color="primary">Add Task</Button>
+  </DialogActions>
+</Dialog>
 
         {/* Edit Task Modal */}
-        {editTask && (
-          <Dialog open={openEditModal} onClose={() => setOpenEditModal(false)}>
-            <DialogTitle>Edit Task</DialogTitle>
-            <DialogContent>
-              <TextField fullWidth label="Title" value={editTask.title} onChange={(e) => setEditTask({ ...editTask, title: e.target.value })} />
-              <TextField fullWidth multiline label="Description" value={editTask.description} onChange={(e) => setEditTask({ ...editTask, description: e.target.value })} />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setOpenEditModal(false)}>Cancel</Button>
-              <Button onClick={handleEditTask} color="primary">Save Changes</Button>
-            </DialogActions>
-          </Dialog>
-        )}
+{editTask && (
+  <Dialog open={openEditModal} onClose={() => setOpenEditModal(false)}>
+    <DialogTitle>Edit Task</DialogTitle>
+    <DialogContent>
+      <TextField
+        fullWidth
+        label="Title"
+        value={editTask.title}
+        onChange={(e) => setEditTask({ ...editTask, title: e.target.value })}
+        sx={{ mb: 2 }} // Add bottom margin for spacing
+      />
+      <TextField
+        fullWidth
+        multiline
+        label="Description"
+        value={editTask.description}
+        onChange={(e) => setEditTask({ ...editTask, description: e.target.value })}
+        sx={{ mb: 2 }} // Add bottom margin for spacing
+        minRows={3} // Minimum number of rows for better visibility
+      />
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={() => setOpenEditModal(false)} color="secondary">Cancel</Button>
+      <Button onClick={handleEditTask} color="primary">Save Changes</Button>
+    </DialogActions>
+  </Dialog>
+)}
 
-        {/* View Task Details Modal */}
-        {selectedTask && (
-          <Dialog open={openDetailsModal} onClose={() => setOpenDetailsModal(false)}>
-            <DialogTitle>Task Details</DialogTitle>
-            <DialogContent>
-              <Typography variant="h6">Title: {selectedTask.title}</Typography>
-              <Typography variant="body1">Description: {selectedTask.description}</Typography>
-              <Typography variant="body1">Status: {selectedTask.status}</Typography>
-              <Typography variant="caption">Created at: {new Date(selectedTask.createdAt).toLocaleString()}</Typography>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setOpenDetailsModal(false)}>Close</Button>
-            </DialogActions>
-          </Dialog>
-        )}
+
+{/* View Task Details Modal */}
+{selectedTask && (
+  <Dialog open={openDetailsModal} onClose={() => setOpenDetailsModal(false)}>
+    <DialogTitle sx={{ fontWeight: 'bold' }}>Task Details</DialogTitle>
+    <DialogContent>
+      <Typography variant="h6" gutterBottom >
+        Title: {selectedTask.title.toUpperCase()}
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        Description: {selectedTask.description}
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        Status: <strong>{selectedTask.status.toUpperCase()}</strong>
+      </Typography>
+      <Typography variant="caption" color="text.secondary">
+        Created at: {new Date(selectedTask.createdAt).toLocaleString()}
+      </Typography>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={() => setOpenDetailsModal(false)} color="primary">Close</Button>
+    </DialogActions>
+  </Dialog>
+)}
+
 
         {/* Delete Confirmation Dialog */}
         <Dialog open={openDeleteConfirm} onClose={() => setOpenDeleteConfirm(false)}>
