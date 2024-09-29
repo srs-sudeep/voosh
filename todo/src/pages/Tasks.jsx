@@ -9,7 +9,8 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
-
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState({ title: '', description: '', status: 'todo' });
@@ -54,6 +55,7 @@ const Tasks = () => {
       setTasks([...tasks, response.data]);
       setOpenAddModal(false);
       setNewTask({ title: '', description: '', status: 'todo' });
+      toast.success('Tasks added successfully!');
     } catch (error) {
       console.error('Error adding task:', error);
     }
@@ -67,6 +69,7 @@ const Tasks = () => {
       setTasks(tasks.map((task) => (task._id === editTask._id ? response.data : task)));
       setOpenEditModal(false);
       setEditTask(null);
+      toast.info('Tasks edited successfully!');
     } catch (error) {
       console.error('Error updating task:', error);
     }
@@ -80,6 +83,7 @@ const Tasks = () => {
       setTasks(tasks.filter((task) => task._id !== taskToDelete._id));
       setOpenDeleteConfirm(false);
       setTaskToDelete(null);
+      toast.info('Tasks deleted successfully!');
     } catch (error) {
       console.error('Error deleting task:', error);
     }
@@ -242,6 +246,7 @@ const Tasks = () => {
           </DialogActions>
         </Dialog>
       </Box>
+      <ToastContainer />
     </DndProvider>
   );
 };
