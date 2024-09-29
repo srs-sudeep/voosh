@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -141,9 +141,15 @@ const Tasks = () => {
           </Select>
         </Box>
 
-        <Grid container spacing={3}>
-          {statusColumns.map((status) => (
-            <Grid item xs={4} key={status}>
+        <Grid container spacing={3} className="flex flex-wrap justify-between w-full gap-4">
+  {statusColumns.map((status) => (
+    <Grid
+      item
+      xs={12}  // Full width on extra-small screens
+      sm={6}   // Half width on small screens (>= 600px)
+      md={4}   // One-third width on medium screens (>= 960px)
+      key={status}
+    >
               <Box
                 sx={{
                   border: '1px solid #ccc',
