@@ -194,6 +194,7 @@ const Tasks = () => {
             <DialogContent>
               <Typography variant="h6">Title: {selectedTask.title}</Typography>
               <Typography variant="body1">Description: {selectedTask.description}</Typography>
+              <Typography variant="body1">Status: {selectedTask.status}</Typography>
               <Typography variant="caption">Created at: {new Date(selectedTask.createdAt).toLocaleString()}</Typography>
             </DialogContent>
             <DialogActions>
