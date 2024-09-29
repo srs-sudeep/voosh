@@ -5,21 +5,26 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [gid, setGid] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth(); // Get login function from context
+
   const isAuthenticated = () => {
     return !!localStorage.getItem('token');  // Token existence check
   };
 
   useEffect(() => {
-    if(isAuthenticated() === true){
+    if (isAuthenticated() === true) {
       navigate("/tasks");
     }
-  }, [])
+  }, [navigate]);
+
   useEffect(() => {
     const loadGoogleScript = () => {
       const script = document.createElement('script');
@@ -33,6 +38,17 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation
+    if (!validateEmail(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+    if (!password) {
+      toast.error("Password is required.");
+      return;
+    }
+
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
         email,
@@ -40,13 +56,19 @@ const Login = () => {
       });
       const token = response.data.token;
       localStorage.setItem('token', token);
-      if(token){
+      if (token) {
         login();
         navigate('/tasks');
       }
     } catch (error) {
+      toast.error('Error during login. Please check your credentials.');
       console.error('Error during login', error);
     }
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const handleGoogle = async () => {
@@ -58,11 +80,12 @@ const Login = () => {
       const token = response.data.token;
       // Store token in localStorage
       localStorage.setItem('token', token);
-      if(token){
+      if (token) {
         login();
         navigate('/tasks');
       }
     } catch (error) {
+      toast.error('Error during Google login.');
       console.error('Error during login', error);
     }
   };
@@ -133,6 +156,7 @@ const Login = () => {
               handleGoogle();
             }}
             onError={() => {
+              toast.error('Google login failed. Please try again.');
               console.log('Login Failed');
             }}
             theme="filled_black"
@@ -141,6 +165,7 @@ const Login = () => {
           />
         </GoogleOAuthProvider>
       </Box>
+      <ToastContainer />
     </Container>
   );
 };

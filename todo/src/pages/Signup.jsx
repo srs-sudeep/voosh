@@ -6,47 +6,58 @@ import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
 import { Box, Button, Container, TextField, Typography, Grid, Divider } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
+import { useForm } from 'react-hook-form';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const Signup = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
   const [gid, setGid] = useState('');
-  const [password, setPassword] = useState('');
+  const [name,setName]= useState('');
+  const [email, setEmail] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/; // At least 8 characters, 1 uppercase, 1 lowercase, 1 digit
+
+  // Initialize react-hook-form
+  const { register, handleSubmit, formState: { errors } } = useForm();
+
+  const onSubmit = async (data) => {
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
-        name,
-        email,
-        password,
+        name: data.name,
+        email: data.email,
+        password: data.password,
       });
       const token = response.data.token;
       localStorage.setItem('token', token);
-      if(token){
+      if (token) {
         login();
         navigate('/tasks');
+        toast.success('Signup successful!');
       }
     } catch (error) {
       console.error('Error during registration', error);
+      toast.error(error.response.data.message);
     }
   };
 
   const handleGoogle = async () => {
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/googlesignup`, {
-        email,
-        name,
+        email: email,
+        name: name,
         g_id: gid,
       });
       const token = response.data.token;
       localStorage.setItem('token', token);
-      if(token){
+      if (token) {
         login();
         navigate('/tasks');
+        toast.success('Google signup successful!');
       }
     } catch (error) {
       console.error('Error during Google signup', error);
+      toast.error('Google signup failed! Please try again.');
     }
   };
 
@@ -56,15 +67,15 @@ const Signup = () => {
         Signup
       </Typography>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <TextField
           label="Name"
           variant="outlined"
           fullWidth
           margin="normal"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
+          {...register('name', { required: 'Name is required' })}
+          error={!!errors.name}
+          helperText={errors.name ? errors.name.message : ''}
         />
         <TextField
           label="Email"
@@ -72,9 +83,15 @@ const Signup = () => {
           fullWidth
           margin="normal"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
+          {...register('email', {
+            required: 'Email is required',
+            pattern: {
+              value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+              message: 'Invalid email address'
+            }
+          })}
+          error={!!errors.email}
+          helperText={errors.email ? errors.email.message : ''}
         />
         <TextField
           label="Password"
@@ -82,9 +99,15 @@ const Signup = () => {
           fullWidth
           margin="normal"
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
+          {...register('password', {
+            required: 'Password is required',
+            pattern: {
+              value: passwordRegex,
+              message: 'Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one digit.'
+            }
+          })}
+          error={!!errors.password}
+          helperText={errors.password ? errors.password.message : ''}
         />
         <Button
           variant="contained"
@@ -104,12 +127,12 @@ const Signup = () => {
           <GoogleLogin
             onSuccess={(credentialResponse) => {
               const details = jwtDecode(credentialResponse.credential);
-              setEmail(details.email);
               setGid(details.sub);
               setName(details.name);
+              setEmail(details.email);
               handleGoogle();
             }}
-            onError={() => console.log('Login Failed')}
+            onError={() => toast.error('Login Failed')}
             theme="filled_black"
             shape="pill"
             text="continue_with"
@@ -125,6 +148,9 @@ const Signup = () => {
           </Button>
         </Typography>
       </Box>
+
+      {/* Toast Container for notifications */}
+      <ToastContainer />
     </Container>
   );
 };
